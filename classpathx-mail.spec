@@ -36,7 +36,7 @@
 
 Name:           classpathx-mail
 Version:        1.1.1
-Release:        %mkrel 4.1
+Release:        %mkrel 4.2
 Epoch:          0
 Summary:        GNU JavaMail(tm)
 
