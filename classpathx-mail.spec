@@ -69,8 +69,8 @@ BuildRequires:  gnu-crypto
 Requires:       jaf >= 0:1.0
 Requires:       jce
 Requires:       java-sasl
-Requires(preun):  /usr/sbin/update-alternatives
-Requires(post):  /usr/sbin/update-alternatives
+Requires(preun):  update-alternatives
+Requires(post):  update-alternatives
 Provides:       javamail = 0:%{jmailver}
 # For backward compatibility with former monolithic subpackages
 Provides:       javamail-monolithic = 0:%{jmailver}
