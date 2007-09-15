@@ -119,7 +119,7 @@ popd
 mkdir classes
 cp -r inetlib-%{inetlibver}/classes/org classes
 # build mail
-export CLASSPATH=%(build-classpath activation)
+export CLASSPATH=$(build-classpath activation)
 %{ant} \
   -Dj2se.apidoc=%{_javadocdir}/java \
   -Djaf.apidoc=%{_javadocdir}/jaf \
