@@ -36,7 +36,7 @@
 
 Name:           classpathx-mail
 Version:        1.1.1
-Release:        %mkrel 4.5
+Release:        %mkrel 4.6
 Epoch:          0
 Summary:        GNU JavaMail(tm)
 
@@ -78,8 +78,6 @@ Obsoletes:      classpathx-mail-monolithic <= 0:1.1.1_2jpp_6rh
 
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel
-Requires(post): java-gcj-compat
-Requires(postun): java-gcj-compat
 %endif
 
 %description
