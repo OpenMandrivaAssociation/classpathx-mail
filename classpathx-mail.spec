@@ -36,7 +36,7 @@
 
 Name:           classpathx-mail
 Version:        1.1.1
-Release:        %mkrel 4.6
+Release:        %mkrel 4.7
 Epoch:          0
 Summary:        GNU JavaMail(tm)
 
@@ -58,7 +58,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 %if ! %{gcj_support}
 BuildArch:      noarch
 %endif
-BuildRequires:  jpackage-utils >= 0:1.5
+BuildRequires:  java-rpmbuild >= 0:1.5
 BuildRequires:  ant
 BuildRequires:  jaf >= 0:1.0
 BuildRequires:  %{_bindir}/perl
