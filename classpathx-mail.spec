@@ -51,6 +51,7 @@ Patch2:         %{name}-add-inetlib.patch
 Patch3:         %{name}-remove-inetlib.patch
 # see bz157685
 Patch4:         classpath-inetlib-docbuild.patch
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 #Vendor:         JPackage Project
 #Distribution:   JPackage
 
