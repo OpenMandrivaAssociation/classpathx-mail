@@ -36,7 +36,7 @@
 
 Name:           classpathx-mail
 Version:        1.1.1
-Release:        %mkrel 4.7
+Release:        %mkrel 4.7.0
 Epoch:          0
 Summary:        GNU JavaMail(tm)
 
@@ -60,13 +60,13 @@ BuildArch:      noarch
 %endif
 BuildRequires:  java-rpmbuild >= 0:1.5
 BuildRequires:  ant
-BuildRequires:  jaf >= 0:1.0
-BuildRequires:  %{_bindir}/perl
+BuildRequires:  geronimo-jaf-1.0.2-api
+BuildRequires:  perl
 BuildRequires:  jce
 # gnu-crypto is required for pre-1.5 JVMs only
 BuildRequires:  gnu-crypto
 #BuildRequires:  java-sasl
-Requires:       jaf >= 0:1.0
+Requires:       geronimo-jaf-1.0.2-api
 Requires:       jce
 Requires:       java-sasl
 Requires(preun):  update-alternatives
