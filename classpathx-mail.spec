@@ -186,7 +186,7 @@ rm -f %{_javadir}/javamail.jar
 ln -s %{_sysconfdir}/alternatives/javamail %{_javadir}/javamail.jar
 
 %post
-/usr/sbin/update-alternatives --install %{_javadir}/javamail.jar javamail %{_javadir}/classpathx-mail-%{jmailver}-monolithic.jar 010301
+%{_sbindir}/update-alternatives --install %{_javadir}/javamail.jar javamail %{_javadir}/classpathx-mail-%{jmailver}-monolithic.jar 10300
 
 %if %{gcj_support}
 if [ -x %{_bindir}/rebuild-gcj-db ]
@@ -205,7 +205,7 @@ fi
 
 %preun
 if [ "$1" = "0" ]; then
-    /usr/sbin/update-alternatives --remove javamail %{_javadir}/classpathx-mail-%{jmailver}-monolithic.jar
+    %{_sbindir}/update-alternatives --remove javamail %{_javadir}/classpathx-mail-%{jmailver}-monolithic.jar
 fi
 
 %post javadoc
