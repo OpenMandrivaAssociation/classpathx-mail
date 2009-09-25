@@ -63,8 +63,6 @@ BuildRequires:  ant
 BuildRequires:  geronimo-jaf-1.0.2-api
 BuildRequires:  perl
 BuildRequires:  jce
-# gnu-crypto is required for pre-1.5 JVMs only
-BuildRequires:  gnu-crypto
 #BuildRequires:  java-sasl
 Requires:       geronimo-jaf-1.0.2-api
 Requires:       jce
