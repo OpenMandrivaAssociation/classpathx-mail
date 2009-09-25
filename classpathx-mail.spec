@@ -36,7 +36,7 @@
 
 Name:           classpathx-mail
 Version:        1.1.1
-Release:        %mkrel 5
+Release:        %mkrel 6
 Epoch:          0
 Summary:        GNU JavaMail(tm)
 
@@ -75,6 +75,7 @@ Provides:       javamail = 0:%{jmailver}
 # For backward compatibility with former monolithic subpackages
 Provides:       javamail-monolithic = 0:%{jmailver}
 Obsoletes:      classpathx-mail-monolithic <= 0:1.1.1_2jpp_6rh
+ExcludeArch:	%arm %mips
 
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel
