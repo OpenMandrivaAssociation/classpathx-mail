@@ -28,56 +28,32 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-#define gcj_support %{?_with_gcj_support:1}%{!?_with_gcj_support:%{?_without_gcj_support:0}%{!?_without_gcj_support:%{?_gcj_support:%{_gcj_support}}%{!?_gcj_support:0}}}
-
-%define gcj_support 1
-%define jmailver 1.3.2
-%define inetlibver 1.1.1
+%global jmailver 1.3.1
+%global inetlibver 1.1.2
 
 Name:           classpathx-mail
-Version:        1.1.1
-Release:        %mkrel 9
-Epoch:          0
+Version:        1.1.2
+Release:        2
 Summary:        GNU JavaMail(tm)
 
-Group:          Development/Java
-License:        LGPL-like
+Group:          System/Libraries
+# Classpath library exception
+License:        GPLv2+ with exceptions
 URL:            http://www.gnu.org/software/classpathx/
 Source0:        http://ftp.gnu.org/gnu/classpathx/mail-%{version}.tar.gz
 Source1:        http://ftp.gnu.org/gnu/classpath/inetlib-%{inetlibver}.tar.gz
+Patch0:         %{name}-add-inetlib.patch
 # see bz157685
-Patch1:         %{name}-docbuild.patch
-Patch2:         %{name}-add-inetlib.patch
 Patch3:         %{name}-remove-inetlib.patch
-# see bz157685
-Patch4:         classpath-inetlib-docbuild.patch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
-#Vendor:         JPackage Project
-#Distribution:   JPackage
 
-%if ! %{gcj_support}
 BuildArch:      noarch
-%endif
-BuildRequires:  java-rpmbuild >= 0:1.5
+BuildRequires:  jpackage-utils >= 0:1.5
 BuildRequires:  ant
-BuildRequires:  geronimo-jaf-1.0.2-api
 BuildRequires:  perl
-BuildRequires:  jce
-#BuildRequires:  java-sasl
-Requires:       geronimo-jaf-1.0.2-api
-Requires:       jce
-Requires:       java-sasl
-Requires(preun):  update-alternatives
-Requires(post):  update-alternatives
+BuildRequires:  java-javadoc
+Requires(preun): chkconfig
+Requires(post):  chkconfig
 Provides:       javamail = 0:%{jmailver}
-# For backward compatibility with former monolithic subpackages
-Provides:       javamail-monolithic = 0:%{jmailver}
-Obsoletes:      classpathx-mail-monolithic <= 0:1.1.1_2jpp_6rh
-ExcludeArch:	%arm %mips
-
-%if %{gcj_support}
-BuildRequires:  java-gcj-compat-devel
-%endif
 
 %description
 GNU JavaMail(tm) is a free implementation of the JavaMail API.
@@ -86,7 +62,7 @@ GNU JavaMail(tm) is a free implementation of the JavaMail API.
 Summary:        Javadoc for %{name}
 Group:          Development/Java
 Provides:       javamail-javadoc = 0:%{jmailver}
-BuildRequires:  java-javadoc, jaf-javadoc
+Requires:       jpackage-utils
 
 %description    javadoc
 %{summary}.
@@ -94,34 +70,25 @@ BuildRequires:  java-javadoc, jaf-javadoc
 
 %prep
 %setup -q -n mail-%{version}
-%patch1 -p0
-%patch2 -p0
+%patch0
 %patch3 -p0
 rm -f libmail.so
 gzip -dc %{SOURCE1} | tar -xf -
-pushd inetlib-%{inetlibver}
-%patch4 -p0
-  mkdir -p source/org/jpackage/mail
-  mv source/gnu/inet source/org/jpackage/mail
+pushd inetlib-%{inetlibver}/source/gnu/inet
+sed -i -e "s|public final Logger logger|public final static Logger logger|g" imap/IMAPConnection.java nntp/NNTPConnection.java pop3/POP3Connection.java smtp/SMTPConnection.java
 popd
-# assume no filename contains spaces
-%{__perl} -p -i -e 's/gnu(.)inet/org${1}jpackage${1}mail${1}inet/' `grep gnu.inet -lr *`
-
 
 %build
 # build inetlib
 pushd inetlib-%{inetlibver}
-  # FIXME: why are these missing?
-  export CLASSPATH=$(build-classpath jce sasl 2>/dev/null)
-  %{ant} -Dj2se.apidoc=%{_javadocdir}/java inetlib.jar doc
+  %configure 
+  make
 popd
 mkdir classes
-cp -r inetlib-%{inetlibver}/classes/org classes
+cp -r inetlib-%{inetlibver}/classes/gnu classes
 # build mail
-export CLASSPATH=$(build-classpath activation)
-%{ant} \
+ant \
   -Dj2se.apidoc=%{_javadocdir}/java \
-  -Djaf.apidoc=%{_javadocdir}/jaf \
   dist javadoc
 
 # build monolithic
@@ -141,38 +108,27 @@ install -dm 755 $RPM_BUILD_ROOT%{_javadir}/classpathx-mail
 
 # API
 install -pm 644 gnumail.jar \
-  $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/mail-%{jmailver}-api-%{version}.jar
-ln -s mail-%{jmailver}-api-%{version}.jar \
   $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/mail-%{jmailver}-api.jar
 ln -s mail-%{jmailver}-api.jar \
   $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/mailapi.jar
 
 # Providers
 install -pm 644 gnumail-providers.jar \
-  $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/mail-%{jmailver}-providers-%{version}.jar
-ln -s mail-%{jmailver}-providers-%{version}.jar \
   $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/mail-%{jmailver}-providers.jar
 ln -s mail-%{jmailver}-providers.jar \
   $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/providers.jar
 for prov in imap nntp pop3 smtp ; do
   ln -s mail-%{jmailver}-providers.jar \
-    $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/$prov-%{jmailver}.jar
-  ln -s providers.jar $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/$prov.jar
+    $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/$prov.jar
 done
 
 install -pm 644 monolithic.jar \
-  $RPM_BUILD_ROOT%{_javadir}/classpathx-mail-%{jmailver}-monolithic-%{version}.jar
-ln -s classpathx-mail-%{jmailver}-monolithic-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/classpathx-mail-%{jmailver}-monolithic.jar
-touch $RPM_BUILD_ROOT%{_javadir}/javamail.jar # for %ghost
+  $RPM_BUILD_ROOT%{_javadir}/classpathx-mail-%{jmailver}-monolithic.jar
+touch $RPM_BUILD_ROOT%{_javadir}/javamail.jar # for %%ghost
 
 install -dm 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{jmailver}
 cp -pR docs/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{jmailver}
 ln -s %{name}-%{jmailver} $RPM_BUILD_ROOT%{_javadocdir}/%{name} # ghost symlink
-
-
-%if %{gcj_support}
-%{_bindir}/aot-compile-rpm
-%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -185,71 +141,31 @@ rm -f %{_javadir}/javamail.jar
 ln -s %{_sysconfdir}/alternatives/javamail %{_javadir}/javamail.jar
 
 %post
-%{_sbindir}/update-alternatives --install %{_javadir}/javamail.jar javamail %{_javadir}/classpathx-mail-%{jmailver}-monolithic.jar 10300
-
-%if %{gcj_support}
-if [ -x %{_bindir}/rebuild-gcj-db ]
-then
-  %{_bindir}/rebuild-gcj-db
-fi
-%endif
-
-%if %{gcj_support}
-%postun
-if [ -x %{_bindir}/rebuild-gcj-db ]
-then
-  %{_bindir}/rebuild-gcj-db
-fi
-%endif
+%{_sbindir}/update-alternatives --install %{_javadir}/javamail.jar javamail %{_javadir}/classpathx-mail-1.3.1-monolithic.jar 010301
 
 %preun
 if [ "$1" = "0" ]; then
-    %{_sbindir}/update-alternatives --remove javamail %{_javadir}/classpathx-mail-%{jmailver}-monolithic.jar
+    %{_sbindir}/update-alternatives --remove javamail %{_javadir}/classpathx-mail-1.3.1-monolithic.jar
 fi
-
-%post javadoc
-rm -f %{_javadocdir}/%{name}
-ln -s %{name}-%{jmailver} %{_javadocdir}/%{name}
-
-%postun javadoc
-if [ "$1" = "0" ]; then
-    rm -f %{_javadocdir}/%{name}
-fi
-
 
 %files
-%defattr(644,root,root,755)
-%doc AUTHORS ChangeLog COPYING
+%defattr(-,root,root,-)
+%doc AUTHORS ChangeLog COPYING README README.*
 %dir %{_javadir}/classpathx-mail
-%{_javadir}/classpathx-mail/mail-%{jmailver}-api-%{version}.jar
 %{_javadir}/classpathx-mail/mail-%{jmailver}-api.jar
 %{_javadir}/classpathx-mail/mailapi.jar
-%{_javadir}/classpathx-mail/mail-%{jmailver}-providers-%{version}.jar
 %{_javadir}/classpathx-mail/mail-%{jmailver}-providers.jar
 %{_javadir}/classpathx-mail/providers.jar
-%{_javadir}/classpathx-mail/imap-%{jmailver}.jar
 %{_javadir}/classpathx-mail/imap.jar
-%{_javadir}/classpathx-mail/nntp-%{jmailver}.jar
 %{_javadir}/classpathx-mail/nntp.jar
-%{_javadir}/classpathx-mail/pop3-%{jmailver}.jar
 %{_javadir}/classpathx-mail/pop3.jar
-%{_javadir}/classpathx-mail/smtp-%{jmailver}.jar
 %{_javadir}/classpathx-mail/smtp.jar
 # Monolithic jar
-%{_javadir}/classpathx-mail-%{jmailver}-monolithic-%{version}.jar
 %{_javadir}/classpathx-mail-%{jmailver}-monolithic.jar
 %ghost %{_javadir}/javamail.jar
 
-%if %{gcj_support}
-%attr(-,root,root) %{_libdir}/gcj/%{name}/classpathx-mail-%{jmailver}-monolithic-%{version}.jar.*
-# These ones are included in the monolithic one above
-#%attr(-,root,root) %{_libdir}/gcj/%{name}/mail-%{jmailver}-api-%{version}.jar.*
-#%attr(-,root,root) %{_libdir}/gcj/%{name}/mail-%{jmailver}-providers-%{version}.jar.*
-%endif
-
 %files javadoc
-%defattr(644,root,root,755)
-%doc %{_javadocdir}/%{name}-%{jmailver}
-%doc %dir %{_javadocdir}/%{name}
-
+%defattr(-,root,root,-)
+%{_javadocdir}/%{name}-%{jmailver}
+%{_javadocdir}/%{name}
 
