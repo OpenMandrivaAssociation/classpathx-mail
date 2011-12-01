@@ -102,36 +102,36 @@ rm -Rf monolithic
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
-install -dm 755 $RPM_BUILD_ROOT%{_javadir}/classpathx-mail
+install -dm 755 %{buildroot}%{_javadir}/classpathx-mail
 
 # API
 install -pm 644 gnumail.jar \
-  $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/mail-%{jmailver}-api.jar
+  %{buildroot}%{_javadir}/classpathx-mail/mail-%{jmailver}-api.jar
 ln -s mail-%{jmailver}-api.jar \
-  $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/mailapi.jar
+  %{buildroot}%{_javadir}/classpathx-mail/mailapi.jar
 
 # Providers
 install -pm 644 gnumail-providers.jar \
-  $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/mail-%{jmailver}-providers.jar
+  %{buildroot}%{_javadir}/classpathx-mail/mail-%{jmailver}-providers.jar
 ln -s mail-%{jmailver}-providers.jar \
-  $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/providers.jar
+  %{buildroot}%{_javadir}/classpathx-mail/providers.jar
 for prov in imap nntp pop3 smtp ; do
   ln -s mail-%{jmailver}-providers.jar \
-    $RPM_BUILD_ROOT%{_javadir}/classpathx-mail/$prov.jar
+    %{buildroot}%{_javadir}/classpathx-mail/$prov.jar
 done
 
 install -pm 644 monolithic.jar \
-  $RPM_BUILD_ROOT%{_javadir}/classpathx-mail-%{jmailver}-monolithic.jar
-touch $RPM_BUILD_ROOT%{_javadir}/javamail.jar # for %%ghost
+  %{buildroot}%{_javadir}/classpathx-mail-%{jmailver}-monolithic.jar
+touch %{buildroot}%{_javadir}/javamail.jar # for %%ghost
 
-install -dm 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{jmailver}
-cp -pR docs/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{jmailver}
-ln -s %{name}-%{jmailver} $RPM_BUILD_ROOT%{_javadocdir}/%{name} # ghost symlink
+install -dm 755 %{buildroot}%{_javadocdir}/%{name}-%{jmailver}
+cp -pR docs/* %{buildroot}%{_javadocdir}/%{name}-%{jmailver}
+ln -s %{name}-%{jmailver} %{buildroot}%{_javadocdir}/%{name} # ghost symlink
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 
 %triggerpostun -- classpathx-mail-monolithic <= 0:1.1.1-1jpp
