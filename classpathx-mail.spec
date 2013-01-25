@@ -1,39 +1,9 @@
-# Copyright (c) 2000-2005, JPackage Project
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the
-#    distribution.
-# 3. Neither the name of the JPackage Project nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-
 %global jmailver 1.3.1
 %global inetlibver 1.1.2
 
 Name:           classpathx-mail
 Version:        1.1.2
-Release:        4
+Release:        6
 Summary:        GNU JavaMail(tm)
 
 Group:          System/Libraries
@@ -48,6 +18,7 @@ Patch3:         %{name}-remove-inetlib.patch
 
 BuildArch:      noarch
 BuildRequires:  jpackage-utils >= 0:1.5
+BuildRequires:	java-1.6.0-openjdk-devel
 BuildRequires:  ant
 BuildRequires:  perl
 BuildRequires:  java-javadoc
@@ -69,20 +40,22 @@ Requires:       jpackage-utils
 
 
 %prep
-%setup -q -n mail-%{version}
+%setup -q -n mail-%{version} -a 1
 %patch0
 %patch3 -p0
 rm -f libmail.so
-gzip -dc %{SOURCE1} | tar -xf -
+#gzip -dc %{SOURCE1} | tar -xf -
 pushd inetlib-%{inetlibver}/source/gnu/inet
 sed -i -e "s|public final Logger logger|public final static Logger logger|g" imap/IMAPConnection.java nntp/NNTPConnection.java pop3/POP3Connection.java smtp/SMTPConnection.java
 popd
 
 %build
+export JAVA_HOME=%_prefix/lib/jvm/java-1.6.0
+export JAVAC=$JAVA_HOME/bin/javac
 # build inetlib
 pushd inetlib-%{inetlibver}
   %configure 
-  make
+  %make
 popd
 mkdir classes
 cp -r inetlib-%{inetlibver}/classes/gnu classes
@@ -129,10 +102,6 @@ touch %{buildroot}%{_javadir}/javamail.jar # for %%ghost
 install -dm 755 %{buildroot}%{_javadocdir}/%{name}-%{jmailver}
 cp -pR docs/* %{buildroot}%{_javadocdir}/%{name}-%{jmailver}
 ln -s %{name}-%{jmailver} %{buildroot}%{_javadocdir}/%{name} # ghost symlink
-
-%clean
-rm -rf %{buildroot}
-
 
 %triggerpostun -- classpathx-mail-monolithic <= 0:1.1.1-1jpp
 # Remove file from old monolithic subpackage
