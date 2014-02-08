@@ -3,7 +3,7 @@
 
 Name:           classpathx-mail
 Version:        1.1.2
-Release:        6
+Release:        7
 Summary:        GNU JavaMail(tm)
 
 Group:          System/Libraries
