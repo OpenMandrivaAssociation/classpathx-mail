@@ -9,7 +9,7 @@ Summary:        GNU JavaMail(tm)
 Group:          System/Libraries
 # Classpath library exception
 License:        GPLv2+ with exceptions
-URL:            http://www.gnu.org/software/classpathx/
+URL:            https://www.gnu.org/software/classpathx/
 Source0:        http://ftp.gnu.org/gnu/classpathx/mail-%{version}.tar.gz
 Source1:        http://ftp.gnu.org/gnu/classpath/inetlib-%{inetlibver}.tar.gz
 Patch0:         %{name}-add-inetlib.patch
